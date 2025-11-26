@@ -18,10 +18,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Step 6: Set environment variables
 ENV FLASK_ENV=production
-ENV TF_CPP_MIN_LOG_LEVEL=2  # suppress TensorFlow warnings
+ENV TF_CPP_MIN_LOG_LEVEL=2
+# Note: TF_CPP_MIN_LOG_LEVEL suppresses TensorFlow warnings
 
 # Step 7: Expose the port
 EXPOSE 8080
 
-# Step 8: Run the app using Python (gunicorn is called from within Python)
+# Step 8: Run the app using Python
 CMD ["python", "predict.py"]
