@@ -13,13 +13,12 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection import train_test_split
-from scipy.spatial.distance import mahalanobis
-from flask import Flask, jsonify
+import joblib
 
 # -------------------------------
 # Configuration
 # -------------------------------
-BASE_DIR = "./mushroom_dataset"  # relative path for Render
+BASE_DIR = "./mushroom_dataset"
 CLASSES = [
     "contamination_bacterialblotch",
     "contamination_cobweb",
@@ -34,18 +33,24 @@ RANDOM_STATE = 42
 # -------------------------------
 # Training and Feature Extraction
 # -------------------------------
-def main():
+def train_pipeline():
     print("Starting training pipeline...")
 
     # Load dataset
     data = []
     for cls in CLASSES:
         folder = os.path.join(BASE_DIR, cls)
+        if not os.path.exists(folder):
+            print(f"Warning: Folder not found: {folder}")
+            continue
         for file in os.listdir(folder):
             if file.lower().endswith(("jpg", "jpeg", "png")):
                 data.append([os.path.join(folder, file), cls])
     df = pd.DataFrame(data, columns=["path", "label"])
     print(df.head(), "\nTotal images:", len(df))
+    if len(df) == 0:
+        print("No images found. Exiting training.")
+        return
 
     # Split dataset
     train_df, temp_df = train_test_split(df, test_size=0.30, stratify=df["label"], random_state=RANDOM_STATE)
@@ -133,8 +138,7 @@ def main():
     inv_cov = np.linalg.pinv(cov_mat)
     print("Mahalanobis distance ready.")
 
-    # Save models for later use if needed
-    import joblib
+    # Save models
     os.makedirs("models", exist_ok=True)
     joblib.dump(feature_extractor, "models/feature_extractor.pkl")
     joblib.dump(cal_rf, "models/cal_rf.pkl")
@@ -143,25 +147,7 @@ def main():
     print("Training completed and models saved!")
 
 # -------------------------------
-# Flask Web Service
-# -------------------------------
-app = Flask(__name__)
-
-@app.route("/")
-def index():
-    return "Mushroom training service is running!"
-
-@app.route("/train", methods=["POST"])
-def train_endpoint():
-    try:
-        main()
-        return jsonify({"status": "Training completed successfully!"})
-    except Exception as e:
-        return jsonify({"status": "Error", "message": str(e)}), 500
-
-# -------------------------------
-# Run Flask app
+# Run training directly
 # -------------------------------
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    train_pipeline()
