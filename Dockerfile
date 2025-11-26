@@ -1,28 +1,27 @@
-# Step 1: Use official Python 3.11 slim
+# Step 1: Use an official Python 3.11 slim image
 FROM python:3.11-slim
 
-# Step 2: Install system dependencies
+# Step 2: Install system dependencies required by OpenCV
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Step 3: Set working directory
+# Step 3: Set working directory inside the container
 WORKDIR /app
 
-# Step 4: Copy project files
+# Step 4: Copy project files into the container
 COPY . /app
 
 # Step 5: Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir gunicorn
 
-# Step 6: Environment variables
+# Step 6: Set environment variables
 ENV FLASK_ENV=production
-ENV TF_CPP_MIN_LOG_LEVEL=2
+ENV TF_CPP_MIN_LOG_LEVEL=2  # suppress TensorFlow warnings
 
-# Step 7: Expose port (Railway will set $PORT dynamically)
+# Step 7: Expose the port
 EXPOSE 8080
 
-# Step 8: Run the app with gunicorn (shell form so $PORT expands)
-CMD gunicorn -b 0.0.0.0:$PORT predict:app
+# Step 8: Run the app using Python (gunicorn is called from within Python)
+CMD ["python", "predict.py"]
