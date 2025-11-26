@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV FLASK_ENV=production
 ENV PORT=8080
-ENV TF_CPP_MIN_LOG_LEVEL=2  # suppress TensorFlow warnings
+ENV TF_CPP_MIN_LOG_LEVEL=2
 
 # Step 7: Expose the port Railway expects
 
