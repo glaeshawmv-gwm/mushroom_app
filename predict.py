@@ -101,19 +101,7 @@ def home():
     return "Mushroom ML API is running!"
 
 # -------------------------------
-# Run training locally or Flask API
+# Note: No app.run() needed for Railway
 # -------------------------------
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--train", action="store_true", help="Run training pipeline")
-    args = parser.parse_args()
-
-    if args.train:
-        print("Running training locally...")
-        train_pipeline()
-    else:
-        print("Starting Flask API...")
-        port = int(os.environ.get("PORT", 5000))
-        app.run(host="0.0.0.0", port=port)
+# Railway will run:
+# gunicorn -b 0.0.0.0:8080 predict:app
