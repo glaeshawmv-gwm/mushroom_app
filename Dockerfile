@@ -21,11 +21,11 @@ RUN pip install --no-cache-dir gunicorn
 
 # Step 6: Set environment variables for production
 ENV FLASK_ENV=production
-ENV PORT=8080
+# suppress TensorFlow warnings
 ENV TF_CPP_MIN_LOG_LEVEL=2
 
 # Step 7: Expose the port Railway expects
 EXPOSE 8080
 
-# Step 8: Run the app using gunicorn for production
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "predict:app"]
+# Step 8: Run the app using gunicorn for production with dynamic port
+CMD ["bash", "-c", "gunicorn -b 0.0.0.0:$PORT predict:app"]
