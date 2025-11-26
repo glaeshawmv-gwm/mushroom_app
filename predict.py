@@ -102,6 +102,6 @@ def home():
 
 # -------------------------------
 # Note: No app.run() needed for Railway
-# -------------------------------
-# Railway will run:
+# Railway will run the container with:
 # gunicorn -b 0.0.0.0:8080 predict:app
+# -------------------------------
